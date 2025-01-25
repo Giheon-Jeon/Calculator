@@ -1,124 +1,159 @@
 package calc;
 
 import java.awt.Color;
-import java.awt.EventQueue; // 이벤트 큐 클래스
-import java.awt.Font; // 폰트 클래스
-import java.awt.GridLayout; // 그리드 레이아웃 클래스
-import java.awt.event.ActionEvent; // 액션 이벤트 클래스
-import java.awt.event.ActionListener; // 액션 리스너 클래스
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-import javax.swing.JButton; // GUI 버튼 클래스
-import javax.swing.JFrame; // GUI 프레임 클래스
-import javax.swing.JPanel; // GUI 패널 클래스
-import javax.swing.JTextField; // GUI 텍스트 필드 클래스
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField; 
 
-	public class Calculator {
-	private JFrame frame; 										// 메인 프레임
-    private JTextField textField; 								// 결과 텍스트 필드
+public class Calculator {
+    private JFrame frame; 
+    private JTextField textField; 
     private JTextField textPrev;
-    private String operator=""; 								// 현재 연산자
-    private double firstNumber, secondNumber, result; 			// 숫자 및 결과
+    private String operator = ""; 
+    private double firstNumber, secondNumber, result; 
 
     public Calculator() {
-        // 프레임 설정
+        setupFrame();
+        setupTextFields();
+        setupButtons();
+        frame.setVisible(true);
+    }
+
+    // 메인 프레임 설정
+    private void setupFrame() {
         frame = new JFrame();
         frame.setBounds(100, 100, 350, 450);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
+        frame.setTitle("Calculator");
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+    }
 
-        //계산 중간값 표시창 설정
+    // 텍스트 필드 설정
+    private void setupTextFields() {
         textPrev = new JTextField();
         textPrev.setHorizontalAlignment(JTextField.RIGHT);
         textPrev.setBounds(10, 10, 320, 40);
         textPrev.setForeground(Color.GRAY);
         textPrev.setFont(new Font("Arial", Font.ITALIC, 20));
+        textPrev.setEditable(false);
         frame.add(textPrev);
         
-        // 텍스트 필드 설정
         textField = new JTextField();
         textField.setHorizontalAlignment(JTextField.RIGHT);
         textField.setBounds(10, 60, 320, 40);
         textField.setFont(new Font("Arial", Font.BOLD, 45));
         frame.add(textField);
+        
+        //숫자와 "."만 키보드로 입력 가능.
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c) && c != '.') {
+                    e.consume();
+                }
+            }
+        });
+    }
 
-        // 버튼 패널 설정
+    // 버튼 패널 및 버튼 설정
+    private void setupButtons() {
         JPanel panel = new JPanel();
         panel.setBounds(8, 110, 320, 250);
         panel.setLayout(new GridLayout(4, 4, 10, 10));
         frame.add(panel);
 
-        // 버튼 생성 및 패널에 추가
         String[] button_name = { "C", "÷", "×", "=", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "0" };
-        JButton buttons[] = new JButton[button_name.length];
-        
-        for (int i=0; i<button_name.length; i++) {
+        JButton[] buttons = new JButton[button_name.length];
+
+        for (int i = 0; i < button_name.length; i++) {
             buttons[i] = new JButton(button_name[i]);
             buttons[i].setFont(new Font("Arial", Font.BOLD, 17));
-            if (button_name[i] == "C") buttons[i].setBackground(Color.RED);
-			else if ((i >= 4 && i <= 6) || (i >= 8 && i <= 10) || (i >= 12 && i <= 14)) buttons[i].setBackground(Color.BLACK);
-			else buttons[i].setBackground(Color.GRAY);
             buttons[i].setForeground(Color.WHITE);
-			buttons[i].setBorderPainted(false);
+            buttons[i].setBorderPainted(false);
+
+            if (button_name[i].equals("C")) buttons[i].setBackground(Color.RED);
+            else if ((i >= 4 && i <= 6) || (i >= 8 && i <= 10) || (i >= 12 && i <= 14)) buttons[i].setBackground(Color.BLACK);
+            else buttons[i].setBackground(Color.GRAY);
+            
             buttons[i].addActionListener(new ButtonClickListener());
             panel.add(buttons[i]);
         }
-        
-        
-        // 프레임 추가 설정
-        frame.setTitle("Calculator");
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setVisible(true);
     }
-    
-    // 버튼 클릭 리스너
+
+    // 버튼 클릭 리스너 클래스
     private class ButtonClickListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
 
-            // 숫자 입력 처리
-            if (command.charAt(0) >= '0' && command.charAt(0) <= '9') {
+            if (Character.isDigit(command.charAt(0))) { // 0~9
                 textField.setText(textField.getText() + command);
-            } else if (command.equals("C")) { // 초기화 처리
-                textField.setText("");
-                textPrev.setText("");
-                firstNumber = 0;
-                secondNumber = 0;
-                operator = "";
-            } else if (command.equals("=")) { // 결과 계산
-                secondNumber = Double.parseDouble(getLastNumber(textField.getText()));
-                result = calculateResult(firstNumber, secondNumber, operator);
-                textPrev.setText(firstNumber + operator + secondNumber + "=");
-                textField.setText(String.valueOf(result));
-                firstNumber = result;
-                operator = "";
-            } else { // 연산자 처리  
-           		try {
-    	           	if (!operator.isEmpty()) {
-    	           		secondNumber = Double.parseDouble(getLastNumber(textField.getText()));
-                		result = calculateResult(firstNumber, secondNumber, operator);
-   	            		operator = command;
-   	            		textPrev.setText(String.valueOf(result) + operator);
-   	            		firstNumber = result;
-    	           	} else {
-    	           		operator = command;
-    	                firstNumber = Double.parseDouble(textField.getText());
-                    	textPrev.setText(firstNumber + operator);
-   	            	}
-   	            	textField.setText("");
-   	            } catch (NumberFormatException ex) {
-   	            	operator = command;
-   	            	textPrev.setText(firstNumber + operator);
-    	        }
+            } else if (command.equals("C")) {
+                resetCalculator();
+            } else if (command.equals("=")) {
+                calculateResultAndDisplay();
+            } else { //사칙연산 입력받을 경우
+                handleOperator(command);
             }
         }
 
-        //textField.getText에서 마지막 숫자값만 리턴
-        public String getLastNumber(String input) {
+        // 계산기 초기화
+        private void resetCalculator() {
+            textField.setText("");
+            textPrev.setText("");
+            firstNumber = 0;
+            secondNumber = 0;
+            operator = "";
+        }
+
+        // 결과 계산 및 표시
+        private void calculateResultAndDisplay() {
+            secondNumber = Double.parseDouble(getLastNumber(textField.getText()));
+            result = calculateResult(firstNumber, secondNumber, operator);
+            textPrev.setText(firstNumber + operator + secondNumber + "=");
+            textField.setText(String.valueOf(result));
+            firstNumber = result;
+            operator = "";
+        }
+
+        // 연산자 처리
+        private void handleOperator(String command) {
+            try {
+                if (!operator.isEmpty()) {
+                    secondNumber = Double.parseDouble(getLastNumber(textField.getText()));
+                    result = calculateResult(firstNumber, secondNumber, operator);
+                    operator = command;
+                    textPrev.setText(String.valueOf(result) + operator);
+                    firstNumber = result;
+                } else {
+                    operator = command;
+                    firstNumber = Double.parseDouble(textField.getText());
+                    textPrev.setText(firstNumber + operator);
+                }
+                textField.setText("");
+            } catch (NumberFormatException ex) { //연속해서 사칙기호 클릭시
+                operator = command;
+                textPrev.setText(firstNumber + operator);
+            }
+        }
+
+        // 텍스트 필드에서 마지막 숫자 값만 리턴
+        private String getLastNumber(String input) {
             StringBuilder lastNumber = new StringBuilder();
             for (int i = input.length() - 1; i >= 0; i--) {
                 char ch = input.charAt(i);
-                if (Character.isDigit(ch)) {
+                if (Character.isDigit(ch) || ch == '.') {
                     lastNumber.insert(0, ch);
                 } else {
                     break;
@@ -126,24 +161,25 @@ import javax.swing.JTextField; // GUI 텍스트 필드 클래스
             }
             return lastNumber.toString();
         }
-    }
-    
-    // 결과 계산 메서드
-    private double calculateResult(double firstNumber, double secondNumber, String operator) {
-        switch (operator) {
-            case "÷":
-                return firstNumber / secondNumber;
-            case "×":
-                return firstNumber * secondNumber;
-            case "+":
-                return firstNumber + secondNumber;
-            case "-":
-                return firstNumber - secondNumber;
-            default:
-                return 0;
+
+        // 결과 계산 메서드
+        private double calculateResult(double firstNumber, double secondNumber, String operator) {
+            switch (operator) {
+                case "÷":
+                    return firstNumber / secondNumber;
+                case "×":
+                    return firstNumber * secondNumber;
+                case "+":
+                    return firstNumber + secondNumber;
+                case "-":
+                    return firstNumber - secondNumber;
+                default:
+                    return 0;
+            }
         }
     }
 
+    // 메인 메서드
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
