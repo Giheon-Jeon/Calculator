@@ -6,7 +6,8 @@ This is a simple calculator application built using Java Swing. The calculator s
 
 - Basic arithmetic operations: addition, subtraction, multiplication, and division.
 - Clear button to reset the calculator.
-- Keyboard input for numbers and operators.
+- Continuous arithmetic operations without needing to clear between calculations.
+- Keyboard input for numbers.
 - Responsive UI with rounded buttons.
 
 ## Getting Started
@@ -20,5 +21,5 @@ These instructions will help you to set up and run the project on your local mac
 
 ### Installation
 
-1. Clone the repository to your local machine:
-   
+1. Clone the repository to your local machine
+
