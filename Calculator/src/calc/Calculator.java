@@ -31,7 +31,7 @@ public class Calculator {
     // 메인 프레임 설정
     private void setupFrame() {
         frame = new JFrame();
-        frame.setBounds(100, 100, 350, 450);
+        frame.setBounds(100, 100, 350, 405);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
         frame.setTitle("Calculator");
@@ -42,17 +42,21 @@ public class Calculator {
     // 텍스트 필드 설정
     private void setupTextFields() {
         textPrev = new JTextField();
+        textPrev.setBorder(null);
         textPrev.setHorizontalAlignment(JTextField.RIGHT);
-        textPrev.setBounds(10, 10, 320, 40);
+        textPrev.setBounds(10, 10, 320, 30);
         textPrev.setForeground(Color.GRAY);
-        textPrev.setFont(new Font("Arial", Font.ITALIC, 20));
+        textPrev.setFont(new Font("Arial", Font.ITALIC, 15));
         textPrev.setEditable(false);
+        textPrev.setFocusable(false);
         frame.add(textPrev);
         
         textField = new JTextField();
+        textField.setOpaque(false);
+        textField.setBorder(null);
         textField.setHorizontalAlignment(JTextField.RIGHT);
-        textField.setBounds(10, 60, 320, 40);
-        textField.setFont(new Font("Arial", Font.BOLD, 45));
+        textField.setBounds(10, 50, 320, 50);
+        textField.setFont(new Font("Arial", Font.BOLD, 55));
         frame.add(textField);
         
         //숫자와 "."만 키보드로 입력 가능.
@@ -71,7 +75,7 @@ public class Calculator {
     private void setupButtons() {
         JPanel panel = new JPanel();
         panel.setBounds(8, 110, 320, 250);
-        panel.setLayout(new GridLayout(4, 4, 10, 10));
+        panel.setLayout(new GridLayout(4, 4, 5, 5));
         frame.add(panel);
 
         String[] button_name = { "C", "÷", "×", "=", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "0" };
@@ -183,7 +187,7 @@ public class Calculator {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                Calculator window = new Calculator();
+                new Calculator();
             } catch (Exception e) {
                 e.printStackTrace();
             }
